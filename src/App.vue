@@ -1,13 +1,13 @@
 <template>
   <div id="app">
     <app-time-setting v-on:plusWork="plusWork" v-on:minusWork="minusWork" :time="workTime" :text="'Work Time'" :plus="'plusWork'" :minus="'minusWork'"></app-time-setting>
-    <h1 class="colored">{{ text }}</h1>
+    <h1 v-bind:style="{ color: textColor }">{{ text }}</h1>
     <div class="flex">
       <button class="start" v-on:click="begin">Start</button>
     </div>
     
     <app-time-setting v-on:plusRest="plusRest" v-on:minusRest="minusRest" :time="restTime" :text="'Rest Time'" :plus="'plusRest'" :minus="'minusRest'"></app-time-setting>
-    <app-timer class="colored" :timeLeft="timeLeft"></app-timer>
+    <app-timer v-bind:style="{ color: textColor }" :timeLeft="timeLeft"></app-timer>
     <div class="flex">
       <button class="reset" v-on:click="reset">Reset</button>
     </div>
@@ -22,6 +22,7 @@ export default {
       restTime: 5,
       workTime: 25,
       text: 'Session',
+      textColor: 'blanchedalmond',
       flag: true,
       timeLeft: 0,
       timer: ''
@@ -36,15 +37,11 @@ export default {
       if (this.flag) {
         this.timeLeft = this.workTime;
         this.text = 'Work';
-        document.querySelectorAll('.colored').forEach(elem => {
-          elem.style.color = '#ff0000';
-        });
+        this.textColor = '#ff0000';
       } else {
         this.timeLeft = this.restTime;
         this.text = 'Rest';
-        document.querySelectorAll('.colored').forEach(elem => {
-            elem.style.color = 'rgb(175, 218, 49)';
-        });
+        this.textColor = 'rgb(175, 218, 49)';
       }
       this.timeLeft *= 60;
       this.countDown();
@@ -65,9 +62,7 @@ export default {
       this.timeLeft = this.workTime * 60;
       this.text = 'Session';
       this.flag = true;
-      document.querySelectorAll('h1').forEach(elem => {
-        elem.style.color = 'blanchedalmond';
-      });
+      this.textColor = 'blanchedalmond';
       document.querySelector('.start').disabled = false;
       clearInterval(this.timer);
     },
