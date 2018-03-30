@@ -11,8 +11,6 @@
     <div class="flex">
       <button class="reset" v-on:click="reset">Reset</button>
     </div>
-    
-
   </div>
 </template>
 
