@@ -1,15 +1,15 @@
 <template>
   <div id="app">
-    <app-time-setting v-on:plusWork="plusWork" v-on:minusWork="minusWork" :time="workTime" :text="'Work Time'" :plus="'plusWork'" :minus="'minusWork'"></app-time-setting>
-    <h1 v-bind:style="{ color: textColor }">{{ text }}</h1>
+    <app-time-setting @plusWork="plusWork" @minusWork="minusWork" :time="state.workTime" :text="'Work Time'" :plus="'plusWork'" :minus="'minusWork'"></app-time-setting>
+    <h1 :class="{ red: state.isItWorkTime, green: !state.isItWorkTime, blanchedalmond: !state.isWorking }">{{ text }}</h1>
     <div class="flex">
-      <button class="start" v-on:click="begin">Start</button>
+      <button :disabled="state.isWorking" class="start" @click="begin">Start</button>
     </div>
     
-    <app-time-setting v-on:plusRest="plusRest" v-on:minusRest="minusRest" :time="restTime" :text="'Rest Time'" :plus="'plusRest'" :minus="'minusRest'"></app-time-setting>
-    <app-timer v-bind:style="{ color: textColor }" :timeLeft="timeLeft"></app-timer>
+    <app-time-setting @plusRest="plusRest" @minusRest="minusRest" :time="state.restTime" :text="'Rest Time'" :plus="'plusRest'" :minus="'minusRest'"></app-time-setting>
+    <app-timer :class="{ red: state.isItWorkTime, green: !state.isItWorkTime, blanchedalmond: !state.isWorking }" :timeLeft="state.timeLeft"></app-timer>
     <div class="flex">
-      <button class="reset" v-on:click="reset">Reset</button>
+      <button :disabled="!state.isWorking" class="reset" @click="reset">Reset</button>
     </div>
   </div>
 </template>
@@ -19,71 +19,86 @@ export default {
   name: 'app',
   data () {
     return {
-      restTime: 5,
-      workTime: 25,
-      text: 'Session',
-      textColor: 'blanchedalmond',
-      flag: true,
-      timeLeft: 0,
-      timer: ''
+      state: {},
+      initialState: {
+        timeLeft: 0,
+        restTime: 5,
+        workTime: 25,
+        isWorking: false,
+        isItWorkTime: true
+      },
+      timer: '',
+    }
+  },
+  created() {
+    this.state = JSON.parse(JSON.stringify(this.initialState)); //is there a better way to do this without giving reference to this.initialState?
+  },
+  computed: {
+    text() {
+      if (this.state.isWorking) {
+        if (this.state.isItWorkTime) {
+          return 'Work';
+        } else {
+          return 'Rest';
+        }
+      } else {
+        return 'Session';
+      }
     }
   },
   methods: {
     begin() {
-      document.querySelector('.start').disabled = true;
+      this.state.isWorking = !this.state.isWorking;
       this.startTimer();
     },
     startTimer() {
-      if (this.flag) {
-        this.timeLeft = this.workTime;
-        this.text = 'Work';
-        this.textColor = '#ff0000';
-      } else {
-        this.timeLeft = this.restTime;
-        this.text = 'Rest';
-        this.textColor = 'rgb(175, 218, 49)';
-      }
-      this.timeLeft *= 60;
+      this.setTimeLeft();
       this.countDown();
+    },
+    setTimeLeft() {
+      if (this.state.isItWorkTime) {
+        this.state.timeLeft = this.state.workTime;
+      } else {
+        this.state.timeLeft = this.state.restTime;
+      }
+      this.state.timeLeft *= 60;
     },
     countDown() {
       this.timer = setInterval(() => {
-        this.timeLeft -= 1;
-        if (this.timeLeft === 0) {
-          clearInterval(this.timer);
-          this.flag = !this.flag;
+        this.state.timeLeft -= 1;
+        if (this.state.timeLeft === 0) {
+          changeState();
           this.startTimer();
         }
       }, 1000);
     },
+    changeState() {
+      clearInterval(this.timer);
+      this.state.isItWorkTime = !this.state.isItWorkTime;
+    },
     reset() {
-      this.workTime = 25;
-      this.restTime = 5;
-      this.timeLeft = this.workTime * 60;
-      this.text = 'Session';
-      this.flag = true;
-      this.textColor = 'blanchedalmond';
-      document.querySelector('.start').disabled = false;
+      this.state = JSON.parse(JSON.stringify(this.initialState));
       clearInterval(this.timer);
     },
+
     minusWork() {
-      if (this.workTime - 1 > 0) {
-        this.workTime -= 1;
+      if (this.state.workTime - 1 > 0) {
+        this.state.workTime -= 1;
       }
     },
     plusWork() {
-      if (this.workTime + 1 <= 60) {
-        this.workTime += 1;
+      if (this.state.workTime + 1 <= 60) {
+        this.state.workTime += 1;
       }
     },
     minusRest() {
-      if (this.restTime - 1 > 0) {
-        this.restTime -= 1;
+      if (this.state.restTime - 1 > 0) {
+        this.state.restTime -= 1;
       }
     },
     plusRest() {
-      if (this.restTime + 1 <= 60) {
-        this.restTime += 1;
+      if (this.state.restTime + 1 <= 60) {
+        this.state.restTime += 1;
       }
     }
   }
@@ -105,6 +120,7 @@ export default {
 
   h1 {
     font-size: 5em;
+    min-width: 300px;
   }
 
   button {
@@ -121,13 +137,25 @@ export default {
     outline: 0;
   }
 
+  .red {
+    color: #ff0000;
+  }
+
+  .green {
+    color: rgb(175, 218, 49);
+  }
+
+  .blanchedalmond {
+    color: blanchedalmond;
+  }
+
   #app {
     width: 50%;
     margin: auto;
     margin-top: 12%;
     padding: 20px;
     display: grid;
-    grid-template-columns: 3fr 4fr 3fr;
+    grid-template-columns: 3fr 8fr 3fr;
     grid-template-rows: 1fr 1fr;
     grid-gap: 1em;
     grid-column-gap: 2em;

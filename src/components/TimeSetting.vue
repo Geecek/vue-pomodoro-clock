@@ -4,9 +4,9 @@
       <span>{{ text }}</span>
     </div>
     <div class="setting">
-      <span v-on:click="decrement" class="time-changer">-</span>
+      <span @click="decrement" class="time-changer">-</span>
       <span>{{ time }}</span>
-      <span v-on:click="increment" class="time-changer">+</span>
+      <span @click="increment" class="time-changer">+</span>
     </div>
   </div>
 </template>
@@ -36,6 +36,10 @@ export default {
     grid-template-rows: 3fr 2fr;  
   }
 
+  span {
+    min-width: 10%;
+  }
+
   .header {
     display: flex;
     justify-content: center; 
@@ -44,7 +48,7 @@ export default {
 
   .setting {
     display: grid;
-    grid-template-columns: 15fr 1fr 15fr;  
+    grid-template-columns: 1fr 5fr 1fr;  
   }
 
   .time-changer:hover {
