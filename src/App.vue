@@ -67,7 +67,7 @@ export default {
       this.timer = setInterval(() => {
         this.state.timeLeft -= 1;
         if (this.state.timeLeft === 0) {
-          changeState();
+          this.changeState();
           this.startTimer();
         }
       }, 1000);
