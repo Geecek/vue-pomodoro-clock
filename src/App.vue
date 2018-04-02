@@ -150,7 +150,7 @@ export default {
   }
 
   #app {
-    width: 50%;
+    width: 80%;
     margin: auto;
     margin-top: 12%;
     padding: 20px;
